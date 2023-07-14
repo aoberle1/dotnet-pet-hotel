@@ -7,20 +7,47 @@ using Microsoft.EntityFrameworkCore;
 
 namespace pet_hotel.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class PetOwnersController : ControllerBase
+  [ApiController]
+  [Route("api/[controller]")]
+  public class PetOwnersController : ControllerBase
+  {
+    private readonly ApplicationContext _context;
+    public PetOwnersController(ApplicationContext context)
     {
-        private readonly ApplicationContext _context;
-        public PetOwnersController(ApplicationContext context) {
-            _context = context;
-        }
-
-        // This is just a stub for GET / to prevent any weird frontend errors that 
-        // occur when the route is missing in this controller
-        [HttpGet]
-        public IEnumerable<PetOwner> GetPets() {
-            return new List<PetOwner>();
-        }
+      _context = context;
     }
+
+    [HttpGet]
+    public IEnumerable<PetOwner> GetPets()
+    {
+      return _context.PetOwners;
+    }
+
+    [HttpPost]
+    public IActionResult Post(PetOwner petOwner)
+    {
+      _context.Add(petOwner);
+
+      _context.SaveChanges();
+// CreatedAtAction(nameof(Post), new {Id = newGlasses.Id}, newGlasses);
+      return Created("~api/petowners", petOwner);//petOwner);
+    }
+
+    [HttpDelete("resource/{id}")]
+    public void Delete(int id)
+    {
+      PetOwner petOwner = _context.PetOwners.Find(id);
+      _context.PetOwners.Remove(petOwner);
+      _context.SaveChanges();
+    }
+
+    [HttpPut("resource/{id}")]
+    public PetOwner Put(int id, PetOwner petOwner)
+    {
+      petOwner.id = id;
+      _context.Update(petOwner);
+      _context.SaveChanges();
+      return petOwner;
+    }
+  }
 }
